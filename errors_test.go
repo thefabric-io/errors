@@ -146,9 +146,127 @@ func TestStack(t *testing.T) {
 			"err1 nil, err2 nil element in array",
 			args{
 				source:  nil,
-				targets: []error{nil},
+				targets: []error{nil, nil, nil, nil},
 			},
 			nil,
+		},
+		{
+			"err1 nil, err2 nil element in array",
+			args{
+				source: nil,
+				targets: []error{nil, &Error{
+					message: "first error",
+					code:    CodeInvalid,
+				}, nil, nil, &Error{
+					message: "second error",
+					code:    CodeInvalid,
+				}},
+			},
+			&Errors{stacks: []Error{
+				{
+					message: "first error",
+					code:    CodeInvalid,
+				},
+				{
+					message: "second error",
+					code:    CodeInvalid,
+				},
+			}},
+		},
+		{
+			"err1 Error, err2 nil element in array",
+			args{
+				source: &Error{
+					message: "first error",
+					code:    CodeInvalid,
+				},
+				targets: []error{nil, &Error{
+					message: "second error",
+					code:    CodeInvalid,
+				}, nil, nil, &Error{
+					message: "third error",
+					code:    CodeInvalid,
+				}},
+			},
+			&Errors{
+				stacks: []Error{
+					{
+						message: "first error",
+						code:    CodeInvalid,
+					},
+					{
+						message: "second error",
+						code:    CodeInvalid,
+					},
+					{
+						message: "third error",
+						code:    CodeInvalid,
+					},
+				},
+			},
+		},
+		{
+			"err1 Error, err2 nil element in array",
+			args{
+				source: &Errors{
+					stacks: nil,
+				},
+				targets: []error{nil, &Error{
+					message: "first error",
+					code:    CodeInvalid,
+				}, nil, nil, &Error{
+					message: "second error",
+					code:    CodeInvalid,
+				}},
+			},
+			&Errors{
+				stacks: []Error{
+					{
+						message: "first error",
+						code:    CodeInvalid,
+					},
+					{
+						message: "second error",
+						code:    CodeInvalid,
+					},
+				},
+			},
+		},
+		{
+			"err1 Error, err2 nil element in array",
+			args{
+				source: &Errors{
+					stacks: []Error{
+						{
+							message: "first error",
+							code:    CodeInvalid,
+						},
+					},
+				},
+				targets: []error{nil, &Error{
+					message: "second error",
+					code:    CodeInvalid,
+				}, nil, nil, &Error{
+					message: "third error",
+					code:    CodeInvalid,
+				}},
+			},
+			&Errors{
+				stacks: []Error{
+					{
+						message: "first error",
+						code:    CodeInvalid,
+					},
+					{
+						message: "second error",
+						code:    CodeInvalid,
+					},
+					{
+						message: "third error",
+						code:    CodeInvalid,
+					},
+				},
+			},
 		},
 		{
 			"err1 error, err2 nil",

@@ -52,8 +52,8 @@ type Errors struct {
 }
 
 func (e *Errors) Stack(target error) *Errors {
-	if target == nil {
-		return nil
+	if e == nil {
+		return Stack(target)
 	}
 
 	switch err := target.(type) {
