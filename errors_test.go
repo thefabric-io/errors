@@ -143,6 +143,14 @@ func TestStack(t *testing.T) {
 			nil,
 		},
 		{
+			"err1 nil, err2 nil element in array",
+			args{
+				source:  nil,
+				targets: []error{nil},
+			},
+			nil,
+		},
+		{
 			"err1 error, err2 nil",
 			args{
 				source:  errors.New("first error"),

@@ -24,6 +24,9 @@ func Stack(source error, targets ...error) (result *Errors) {
 		result = e
 		break
 	default:
+		if source == nil {
+			break
+		}
 		result = newErrors(Message(source.Error()), CodeUnknown)
 	}
 
@@ -49,6 +52,10 @@ type Errors struct {
 }
 
 func (e *Errors) Stack(target error) *Errors {
+	if target == nil {
+		return nil
+	}
+
 	switch err := target.(type) {
 	case nil:
 		break
