@@ -37,6 +37,14 @@ func Stack(source error, targets ...error) (result *Errors) {
 	return
 }
 
+func IsWithStrategy(err1 error, err2 error, comparable Comparable) bool {
+	return comparable.Compare(err1, err2)
+}
+
+func Is(err1 error, err2 error) bool {
+	return IsWithStrategy(err1, err2, CompareMessageOnlyStrategy())
+}
+
 func newErrors(message Message, code Code) *Errors {
 	errs := Errors{
 		stacks: make([]Error, 1),
