@@ -483,3 +483,224 @@ func TestErrors_First(t *testing.T) {
 		})
 	}
 }
+
+func TestIsWithStrategy(t *testing.T) {
+	type args struct {
+		err1       error
+		err2       error
+		comparable Comparable
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			"different trivial errors",
+			args{
+				err1:       errors.New("first error"),
+				err2:       errors.New("second error"),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			false,
+		},
+		{
+			"different errors types with same message",
+			args{
+				err1:       errors.New("trivial error"),
+				err2:       New("trivial error", CodeInvalid),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			true,
+		},
+		{
+			"stacked errors",
+			args{
+				err1:       New("trivial error", CodeInvalid),
+				err2:       Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			true,
+		},
+		{
+			"double stacked errors",
+			args{
+				err1:       Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+				err2:       Stack(New("another different error", CodeInvalid), New("trivial error", CodeInvalid)),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			true,
+		},
+		{
+			"double stacked errors different",
+			args{
+				err1:       Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+				err2:       Stack(New("another different error", CodeInvalid), New("another trivial error", CodeInvalid)),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsWithStrategy(tt.args.err1, tt.args.err2, tt.args.comparable); got != tt.want {
+				t.Errorf("IsWithStrategy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIs(t *testing.T) {
+	type args struct {
+		err1 error
+		err2 error
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			"different trivial errors",
+			args{
+				err1: errors.New("first error"),
+				err2: errors.New("second error"),
+			},
+			false,
+		},
+		{
+			"different errors types with same message",
+			args{
+				err1: errors.New("trivial error"),
+				err2: New("trivial error", CodeInvalid),
+			},
+			true,
+		},
+		{
+			"stacked errors",
+			args{
+				err1: New("trivial error", CodeInvalid),
+				err2: Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+			},
+			true,
+		},
+		{
+			"double stacked errors",
+			args{
+				err1: Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+				err2: Stack(New("another different error", CodeInvalid), New("trivial error", CodeInvalid)),
+			},
+			true,
+		},
+		{
+			"double stacked errors different",
+			args{
+				err1: Stack(New("trivial error", CodeUnknown), New("another error", CodeUnknown)),
+				err2: Stack(New("another different error", CodeInvalid), New("another trivial error", CodeInvalid)),
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Is(tt.args.err1, tt.args.err2); got != tt.want {
+				t.Errorf("Is() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestErrors_IsWithStrategy(t *testing.T) {
+	type fields struct {
+		stacks []Error
+	}
+	type args struct {
+		err        error
+		comparable Comparable
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			"different trivial errors",
+			fields{
+				stacks: []Error{*New("first error", CodeUnknown), *New("second error", CodeUnknown)},
+			},
+			args{
+				err:        errors.New("third error"),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			false,
+		},
+		{
+			"same trivial errors",
+			fields{
+				stacks: []Error{*New("first error", CodeUnknown), *New("second error", CodeUnknown)},
+			},
+			args{
+				err:        errors.New("first error"),
+				comparable: CompareMessageOnlyStrategy(),
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Errors{
+				stacks: tt.fields.stacks,
+			}
+			if got := e.IsWithStrategy(tt.args.err, tt.args.comparable); got != tt.want {
+				t.Errorf("IsWithStrategy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestErrors_Is(t *testing.T) {
+	type fields struct {
+		stacks []Error
+	}
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			"different trivial errors",
+			fields{
+				stacks: []Error{*New("first error", CodeUnknown), *New("second error", CodeUnknown)},
+			},
+			args{
+				err: errors.New("third error"),
+			},
+			false,
+		},
+		{
+			"same trivial errors",
+			fields{
+				stacks: []Error{*New("first error", CodeUnknown), *New("second error", CodeUnknown)},
+			},
+			args{
+				err: errors.New("first error"),
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Errors{
+				stacks: tt.fields.stacks,
+			}
+			if got := e.Is(tt.args.err); got != tt.want {
+				t.Errorf("Is() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
