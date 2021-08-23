@@ -6,17 +6,16 @@ import (
 	"strings"
 )
 
-func Stack(source error, targets ...error) (result *Errors) {
-	if source == nil && (len(targets) == 0 || targets == nil) {
-		return nil
-	}
-
-	if source == nil && len(targets) != 0 {
-		source = targets[0]
-		targets = targets[1:]
-	}
-
+func Stack(source error, targets ...error) (result error) {
 	switch e := source.(type) {
+	case nil:
+		if len(targets) != 0 {
+			source = targets[0]
+			targets = targets[1:]
+
+			return Stack(source, targets...)
+		}
+
 	case *Error:
 		result = newErrors(e.message, e.code)
 		break
@@ -24,14 +23,11 @@ func Stack(source error, targets ...error) (result *Errors) {
 		result = e
 		break
 	default:
-		if source == nil {
-			break
-		}
 		result = newErrors(Message(source.Error()), CodeUnknown)
 	}
 
 	for _, target := range targets {
-		result = result.Stack(target)
+		result = result.(*Errors).Stack(target)
 	}
 
 	return
@@ -59,11 +55,7 @@ type Errors struct {
 	stacks []Error
 }
 
-func (e *Errors) Stack(target error) *Errors {
-	if e == nil {
-		return Stack(target)
-	}
-
+func (e *Errors) Stack(target error) error {
 	switch err := target.(type) {
 	case nil:
 		break

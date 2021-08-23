@@ -11,8 +11,8 @@ func CompareMessageOnlyStrategy() Comparable {
 type compareMessageOnlyStrategy struct{}
 
 func (c compareMessageOnlyStrategy) Compare(err1, err2 error) bool {
-	errA := Stack(err1)
-	errB := Stack(err2)
+	errA := Stack(err1).(*Errors)
+	errB := Stack(err2).(*Errors)
 
 	for _, a := range errA.stacks {
 		for _, b := range errB.stacks {
@@ -32,8 +32,8 @@ func CompareCodeOnlyStrategy() Comparable {
 type compareCodeOnlyStrategy struct{}
 
 func (c compareCodeOnlyStrategy) Compare(err1, err2 error) bool {
-	errA := Stack(err1)
-	errB := Stack(err2)
+	errA := Stack(err1).(*Errors)
+	errB := Stack(err2).(*Errors)
 
 	for _, a := range errA.stacks {
 		for _, b := range errB.stacks {
@@ -53,8 +53,8 @@ func CompareStrictStrategy() Comparable {
 type compareStrictStrategy struct{}
 
 func (c compareStrictStrategy) Compare(err1, err2 error) bool {
-	errA := Stack(err1)
-	errB := Stack(err2)
+	errA := Stack(err1).(*Errors)
+	errB := Stack(err2).(*Errors)
 
 	for _, a := range errA.stacks {
 		for _, b := range errB.stacks {

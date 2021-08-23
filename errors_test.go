@@ -14,7 +14,7 @@ func TestStack(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       args
-		wantResult *Errors
+		wantResult error
 	}{
 		{
 			"err1 error, err2 error",
@@ -43,7 +43,7 @@ func TestStack(t *testing.T) {
 			},
 			&Errors{
 				stacks: []Error{
-					Error{
+					{
 						message: "first error",
 						code:    CodeUnknown,
 					},
@@ -143,7 +143,7 @@ func TestStack(t *testing.T) {
 			nil,
 		},
 		{
-			"err1 nil, err2 nil element in array",
+			"err1 nil, err2 nil element in array 1",
 			args{
 				source:  nil,
 				targets: []error{nil, nil, nil, nil},
@@ -151,7 +151,7 @@ func TestStack(t *testing.T) {
 			nil,
 		},
 		{
-			"err1 nil, err2 nil element in array",
+			"err1 nil, err2 nil element in array 2",
 			args{
 				source: nil,
 				targets: []error{nil, &Error{
@@ -174,7 +174,7 @@ func TestStack(t *testing.T) {
 			}},
 		},
 		{
-			"err1 Error, err2 nil element in array",
+			"err1 Error, err2 nil element in array 3",
 			args{
 				source: &Error{
 					message: "first error",
@@ -206,7 +206,7 @@ func TestStack(t *testing.T) {
 			},
 		},
 		{
-			"err1 Error, err2 nil element in array",
+			"err1 Error, err2 nil element in array 4",
 			args{
 				source: &Errors{
 					stacks: nil,
@@ -233,7 +233,7 @@ func TestStack(t *testing.T) {
 			},
 		},
 		{
-			"err1 Error, err2 nil element in array",
+			"err1 Error, err2 nil element in array 5",
 			args{
 				source: &Errors{
 					stacks: []Error{
@@ -290,6 +290,14 @@ func TestStack(t *testing.T) {
 				t.Errorf("Stack() = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
+	}
+}
+
+func TestStackBis(t *testing.T) {
+	var r error
+
+	if got := Stack(r, nil); !reflect.DeepEqual(got, nil) {
+		t.Errorf("Stack() Exception = %v, want %v", got, nil)
 	}
 }
 
@@ -356,6 +364,13 @@ func TestErrors_Stack(t *testing.T) {
 			}},
 		},
 	}
+
+	/*var r Errors
+	want := r
+	if got := r.Stack(nil); !reflect.DeepEqual(got, want) {
+		t.Errorf("Stack() Exception = %v, want %v", got, want)
+	}*/
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := &Errors{
