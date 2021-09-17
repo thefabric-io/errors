@@ -19,9 +19,11 @@ func Stack(source error, targets ...error) (result error) {
 	case *Error:
 		result = newErrors(e.message, e.code)
 		break
+
 	case *Errors:
 		result = e
 		break
+
 	default:
 		result = newErrors(Message(source.Error()), CodeUnknown)
 	}

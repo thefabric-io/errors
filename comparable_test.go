@@ -16,6 +16,23 @@ func TestCompareMessageOnly_Compare(t *testing.T) {
 		want bool
 	}{
 		{
+			"different trivial errors with nil error",
+			args{
+				err1: errors.New("first error"),
+				err2: nil,
+			},
+			false,
+		},
+
+		{
+			"equal nil errors",
+			args{
+				err1: nil,
+				err2: nil,
+			},
+			true,
+		},
+		{
 			"different trivial errors",
 			args{
 				err1: errors.New("first error"),
@@ -77,6 +94,22 @@ func TestCompareCodeOnly_Compare(t *testing.T) {
 		want bool
 	}{
 		{
+			"different trivial errors with nil error",
+			args{
+				err1: errors.New("first error"),
+				err2: nil,
+			},
+			false,
+		},
+		{
+			"equal nil errors",
+			args{
+				err1: nil,
+				err2: nil,
+			},
+			true,
+		},
+		{
 			"different trivial errors",
 			args{
 				err1: errors.New("first error"),
@@ -137,6 +170,22 @@ func TestCompareStrict_Compare(t *testing.T) {
 		args args
 		want bool
 	}{
+		{
+			"different trivial errors with nil error",
+			args{
+				err1: errors.New("first error"),
+				err2: nil,
+			},
+			false,
+		},
+		{
+			"equal nil errors",
+			args{
+				err1: nil,
+				err2: nil,
+			},
+			true,
+		},
 		{
 			"different trivial errors",
 			args{
