@@ -9,71 +9,46 @@ func oneIsNil(err1, err2 error) bool {
 }
 
 func CompareMessageOnlyStrategy() Comparable {
-	return compareMessageOnlyStrategy{}
-}
-
-type compareMessageOnlyStrategy struct{}
-
-func (c compareMessageOnlyStrategy) Compare(err1, err2 error) bool {
-	if oneIsNil(err1, err2) {
-		return err1 == err2
+	return compareStrategy{
+		tester: func(err1, err2 Error) bool {
+			return err2.message.Equal(err1.message)
+		},
 	}
-
-	errA := Stack(err1).(*Errors)
-	errB := Stack(err2).(*Errors)
-
-	for _, a := range errA.stacks {
-		for _, b := range errB.stacks {
-			if b.message.Equal(a.message) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func CompareCodeOnlyStrategy() Comparable {
-	return compareCodeOnlyStrategy{}
-}
-
-type compareCodeOnlyStrategy struct{}
-
-func (c compareCodeOnlyStrategy) Compare(err1, err2 error) bool {
-	if oneIsNil(err1, err2) {
-		return err1 == err2
+	return compareStrategy{
+		tester: func(err1, err2 Error) bool {
+			return err2.code.Equal(err1.code)
+		},
 	}
-
-	errA := Stack(err1).(*Errors)
-	errB := Stack(err2).(*Errors)
-
-	for _, a := range errA.stacks {
-		for _, b := range errB.stacks {
-			if b.code.Equal(a.code) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func CompareStrictStrategy() Comparable {
-	return compareStrictStrategy{}
+	return compareStrategy{
+		tester: func(err1, err2 Error) bool {
+			return err2.code.Equal(err1.code) && err2.message.Equal(err1.message)
+		},
+	}
 }
 
-type compareStrictStrategy struct{}
+type equalityTester func(err1, err2 Error) bool
 
-func (c compareStrictStrategy) Compare(err1, err2 error) bool {
+type compareStrategy struct {
+	tester equalityTester
+}
+
+func (c compareStrategy) Compare(err1, err2 error) bool {
 	if oneIsNil(err1, err2) {
 		return err1 == err2
 	}
+
 	errA := Stack(err1).(*Errors)
 	errB := Stack(err2).(*Errors)
 
 	for _, a := range errA.stacks {
 		for _, b := range errB.stacks {
-			if b.code.Equal(a.code) && b.message.Equal(a.message) {
+			if c.tester(a, b) {
 				return true
 			}
 		}
