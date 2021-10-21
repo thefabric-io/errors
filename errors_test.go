@@ -2,6 +2,7 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -716,6 +717,39 @@ func TestErrors_Is(t *testing.T) {
 			if got := e.Is(tt.args.err); got != tt.want {
 				t.Errorf("Is() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestErrors_UnmarshalJSON(t *testing.T) {
+	type fields struct {
+		stacks []Error
+	}
+	type args struct {
+		b []byte
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"nominal",
+			fields{stacks: nil},
+			args{b: []byte(`{"error":{"first":{"message":"error 1","code":"ERR001"},"last":{"message":"trivial error with a value of '0.00 €'","code":"unknown"},"stack":[{"message":"error 1","code":"ERR001"},{"message":"error 2","code":"ERR002"},{"message":"trivial error","code":"unknown"},{"message":"error 3","code":"ERR003"},{"message":"error 4","code":"ERR004"},{"message":"error with a subject of '10c39745-c7fe-429f-a0fb-5035dbdc6c47' and a value of '12.00' €","code":"subject"},{"message":"error 5","code":"ERR005"},{"message":"error 6","code":"ERR006"},{"message":"error 7","code":"ERR007"},{"message":"trivial error with a value of '0.00 €'","code":"unknown"}]}}`)},
+			false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Errors{
+				stacks: tt.fields.stacks,
+			}
+			if err := e.UnmarshalJSON(tt.args.b); (err != nil) != tt.wantErr {
+				t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			fmt.Println(e.Error())
 		})
 	}
 }

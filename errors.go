@@ -100,19 +100,19 @@ func (e *Errors) Error() string {
 	return string(b)
 }
 
+type mErrors struct {
+	First Error   `json:"first"`
+	Last  Error   `json:"last"`
+	Stack []Error `json:"stack,omitempty"`
+}
+
+type errorWrapper struct {
+	Error mErrors `json:"error"`
+}
+
 func (e *Errors) MarshalJSON() ([]byte, error) {
-	type data struct {
-		First Error   `json:"first"`
-		Last  Error   `json:"last"`
-		Stack []Error `json:"stack,omitempty"`
-	}
-
-	type result struct {
-		Error data `json:"error"`
-	}
-
-	r := result{
-		Error: data{
+	r := errorWrapper{
+		Error: mErrors{
 			First: e.First(),
 			Last:  e.Last(),
 			Stack: e.stacks,
@@ -122,27 +122,13 @@ func (e *Errors) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r)
 }
 
-type uErrors struct {
-	Stacks []uError `json:"stacks"`
-}
-
-type uError struct {
-	Message Message `json:"message"`
-	Code    Code    `json:"code"`
-}
-
 func (e *Errors) UnmarshalJSON(b []byte) error {
-	var uErr uErrors
-	if err := json.Unmarshal(b, &uErr); err != nil {
+	var r errorWrapper
+	if err := json.Unmarshal(b, &r); err != nil {
 		return err
 	}
 
-	e.stacks = make([]Error, len(uErr.Stacks))
-
-	for i, s := range uErr.Stacks {
-		e.stacks[i].code = s.Code
-		e.stacks[i].message = s.Message
-	}
+	e.stacks = r.Error.Stack
 
 	return nil
 }

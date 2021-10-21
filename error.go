@@ -41,16 +41,28 @@ func (e *Error) Error() string {
 	return string(b)
 }
 
-func (e Error) MarshalJSON() ([]byte, error) {
-	type data struct {
-		Message string `json:"message,omitempty"`
-		Code    string `json:"code,omitempty"`
-	}
+type mError struct {
+	Message string `json:"message,omitempty"`
+	Code    string `json:"code,omitempty"`
+}
 
-	result := data{
+func (e Error) MarshalJSON() ([]byte, error) {
+	r := mError{
 		Message: string(e.message),
 		Code:    string(e.code),
 	}
 
-	return json.Marshal(result)
+	return json.Marshal(r)
+}
+
+func (e *Error) UnmarshalJSON(b []byte) error {
+	var mErr mError
+	if err := json.Unmarshal(b, &mErr); err != nil {
+		return err
+	}
+
+	e.code = Code(mErr.Code)
+	e.message = Message(mErr.Message)
+
+	return nil
 }
