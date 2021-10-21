@@ -121,3 +121,28 @@ func (e *Errors) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(r)
 }
+
+type uErrors struct {
+	Stacks []uError `json:"stacks"`
+}
+
+type uError struct {
+	Message Message `json:"message"`
+	Code    Code    `json:"code"`
+}
+
+func (e *Errors) UnmarshalJSON(b []byte) error {
+	var uErr uErrors
+	if err := json.Unmarshal(b, &uErr); err != nil {
+		return err
+	}
+
+	e.stacks = make([]Error, len(uErr.Stacks))
+
+	for i, s := range uErr.Stacks {
+		e.stacks[i].code = s.Code
+		e.stacks[i].message = s.Message
+	}
+
+	return nil
+}
