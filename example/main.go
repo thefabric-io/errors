@@ -35,6 +35,10 @@ func main() {
 
 	result = errors.Stack(result, Err5, Err6, Err7, fmt.Errorf("trivial error with a value of '%s'", "0.00 €"))
 
+	fmt.Println(" ============== String One Error ==============")
+	fmt.Println(Err5)
+
+	fmt.Println(" ============== String Representation Errors ==============")
 	fmt.Println(result)
 
 	b, err := result.(*errors.Errors).MarshalJSON()
@@ -44,4 +48,5 @@ func main() {
 
 	fmt.Println(" ============== JSON Representation ==============")
 	fmt.Println(string(b))
+
 }

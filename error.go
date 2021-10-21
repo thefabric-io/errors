@@ -2,7 +2,6 @@ package errors
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 const (
@@ -37,7 +36,9 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("[%s] %s", e.code, e.message)
+	b, _ := e.MarshalJSON()
+
+	return string(b)
 }
 
 func (e Error) MarshalJSON() ([]byte, error) {

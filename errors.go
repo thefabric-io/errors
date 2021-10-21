@@ -2,8 +2,6 @@ package errors
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 )
 
 func Stack(source error, targets ...error) (result error) {
@@ -97,17 +95,9 @@ func (e *Errors) Is(err error) bool {
 }
 
 func (e *Errors) Error() string {
-	b := strings.Builder{}
+	b, _ := e.MarshalJSON()
 
-	b.WriteString(" ============== Errors ==============\n")
-
-	for i, s := range e.stacks {
-		b.WriteString(fmt.Sprintf("\t%d. %s\n", i+1, s.Error()))
-	}
-
-	b.WriteString("\n")
-
-	return b.String()
+	return string(b)
 }
 
 func (e *Errors) MarshalJSON() ([]byte, error) {

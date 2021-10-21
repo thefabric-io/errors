@@ -64,7 +64,7 @@ func TestError_Error(t *testing.T) {
 				message: "entity invalid",
 				code:    CodeInvalid,
 			},
-			fmt.Sprintf("[%s] %s", CodeInvalid, "entity invalid"),
+			fmt.Sprintf(`{"message":"entity invalid","code":"invalid"}`),
 		},
 	}
 	for _, tt := range tests {
