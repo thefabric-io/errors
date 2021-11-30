@@ -35,7 +35,15 @@ type Error struct {
 	code    Code
 }
 
-func (e *Error) Error() string {
+func (e Error) Code() Code {
+	return e.code
+}
+
+func (e Error) Message() Message {
+	return e.message
+}
+
+func (e Error) Error() string {
 	b, _ := e.MarshalJSON()
 
 	return string(b)

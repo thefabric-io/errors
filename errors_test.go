@@ -2,7 +2,6 @@ package errors
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -748,8 +747,6 @@ func TestErrors_UnmarshalJSON(t *testing.T) {
 			if err := e.UnmarshalJSON(tt.args.b); (err != nil) != tt.wantErr {
 				t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
-
-			fmt.Println(e.Error())
 		})
 	}
 }
